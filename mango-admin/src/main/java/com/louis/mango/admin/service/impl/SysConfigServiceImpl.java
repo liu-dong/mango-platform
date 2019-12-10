@@ -1,16 +1,15 @@
 package com.louis.mango.admin.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.louis.mango.admin.dao.SysConfigMapper;
 import com.louis.mango.admin.model.SysConfig;
 import com.louis.mango.admin.service.SysConfigService;
 import com.louis.mango.core.page.MybatisPageHelper;
 import com.louis.mango.core.page.PageRequest;
 import com.louis.mango.core.page.PageResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class SysConfigServiceImpl  implements SysConfigService {
@@ -46,7 +45,7 @@ public class SysConfigServiceImpl  implements SysConfigService {
 
 	@Override
 	public PageResult findPage(PageRequest pageRequest) {
-		Object label = pageRequest.getParam("label");
+		Object label = pageRequest.getParamValue("label");
 		if(label != null) {
 			return MybatisPageHelper.findPage(pageRequest, sysConfigMapper, "findPageByLabel", label);
 		}

@@ -1,20 +1,5 @@
 package com.louis.mango.admin.service.impl;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.louis.mango.admin.dao.SysRoleMapper;
 import com.louis.mango.admin.dao.SysUserMapper;
 import com.louis.mango.admin.dao.SysUserRoleMapper;
@@ -29,6 +14,16 @@ import com.louis.mango.common.utils.PoiUtils;
 import com.louis.mango.core.page.MybatisPageHelper;
 import com.louis.mango.core.page.PageRequest;
 import com.louis.mango.core.page.PageResult;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.File;
+import java.util.*;
 
 @Service
 public class SysUserServiceImpl  implements SysUserService {
@@ -63,7 +58,9 @@ public class SysUserServiceImpl  implements SysUserService {
 				sysUserRole.setUserId(id);
 			}
 		} else {
-			sysUserRoleMapper.deleteByUserId(record.getId());
+			if(!record.getUserRoles().isEmpty()) {
+				sysUserRoleMapper.deleteByUserId(record.getId());
+			}
 		}
 		for(SysUserRole sysUserRole:record.getUserRoles()) {
 			sysUserRoleMapper.insertSelective(sysUserRole);
@@ -91,14 +88,18 @@ public class SysUserServiceImpl  implements SysUserService {
 	
 	@Override
 	public SysUser findByName(String name) {
-		return sysUserMapper.findByName(name);
+		SysUser sysUser = sysUserMapper.findByName(name);
+		List<SysUserRole> userRoles = findUserRoles(sysUser.getId());
+		sysUser.setUserRoles(userRoles);
+		sysUser.setRoleNames(getRoleNames(userRoles));
+		return sysUser;
 	}
 	
 	@Override
 	public PageResult findPage(PageRequest pageRequest) {
 		PageResult pageResult = null;
-		Object name = pageRequest.getParam("name");
-		Object email = pageRequest.getParam("email");
+		Object name = pageRequest.getParamValue("name");
+		Object email = pageRequest.getParamValue("email");
 		if(name != null) {
 			if(email != null) {
 				pageResult = MybatisPageHelper.findPage(pageRequest, sysUserMapper, "findPageByNameAndEmail", name, email);

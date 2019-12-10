@@ -1,16 +1,15 @@
 package com.louis.mango.admin.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.louis.mango.admin.dao.SysLogMapper;
 import com.louis.mango.admin.model.SysLog;
 import com.louis.mango.admin.service.SysLogService;
 import com.louis.mango.core.page.MybatisPageHelper;
 import com.louis.mango.core.page.PageRequest;
 import com.louis.mango.core.page.PageResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class SysLogServiceImpl  implements SysLogService {
@@ -46,7 +45,7 @@ public class SysLogServiceImpl  implements SysLogService {
 
 	@Override
 	public PageResult findPage(PageRequest pageRequest) {
-		Object label = pageRequest.getParam("userName");
+		Object label = pageRequest.getParamValue("userName");
 		if(label != null) {
 			return MybatisPageHelper.findPage(pageRequest, sysLogMapper, "findPageByUserName", label);
 		}

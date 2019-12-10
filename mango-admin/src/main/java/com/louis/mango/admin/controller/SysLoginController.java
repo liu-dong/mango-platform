@@ -1,14 +1,17 @@
 package com.louis.mango.admin.controller;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.google.code.kaptcha.Constants;
+import com.google.code.kaptcha.Producer;
+import com.louis.mango.admin.model.SysUser;
+import com.louis.mango.admin.security.JwtAuthenticatioToken;
+import com.louis.mango.admin.service.SysLoginLogService;
+import com.louis.mango.admin.service.SysUserService;
+import com.louis.mango.admin.util.IPUtils;
+import com.louis.mango.admin.util.PasswordUtils;
+import com.louis.mango.admin.util.SecurityUtils;
+import com.louis.mango.admin.vo.LoginBean;
+import com.louis.mango.common.utils.IOUtils;
+import com.louis.mango.core.http.HttpResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,16 +19,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.code.kaptcha.Constants;
-import com.google.code.kaptcha.Producer;
-import com.louis.mango.admin.model.SysUser;
-import com.louis.mango.admin.security.JwtAuthenticatioToken;
-import com.louis.mango.admin.service.SysUserService;
-import com.louis.mango.admin.util.PasswordUtils;
-import com.louis.mango.admin.util.SecurityUtils;
-import com.louis.mango.admin.vo.LoginBean;
-import com.louis.mango.common.utils.IOUtils;
-import com.louis.mango.core.http.HttpResult;
+import javax.imageio.ImageIO;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 /**
  * 登录控制器
@@ -39,6 +39,8 @@ public class SysLoginController {
 	private Producer producer;
 	@Autowired
 	private SysUserService sysUserService;
+	@Autowired
+	private SysLoginLogService sysLoginLogService;
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
@@ -69,12 +71,12 @@ public class SysLoginController {
 		String captcha = loginBean.getCaptcha();
 		// 从session中获取之前保存的验证码跟前台传来的验证码进行匹配
 		Object kaptcha = request.getSession().getAttribute(Constants.KAPTCHA_SESSION_KEY);
-		if(kaptcha == null){
-			return HttpResult.error("验证码已失效");
-		}
-		if(!captcha.equals(kaptcha)){
-			return HttpResult.error("验证码不正确");
-		}
+//		if(kaptcha == null){
+//			return HttpResult.error("验证码已失效");
+//		}
+//		if(!captcha.equals(kaptcha)){
+//			return HttpResult.error("验证码不正确");
+//		}
 		// 用户信息
 		SysUser user = sysUserService.findByName(username);
 		// 账号不存在、密码错误
@@ -90,6 +92,8 @@ public class SysLoginController {
 		}
 		// 系统登录认证
 		JwtAuthenticatioToken token = SecurityUtils.login(request, username, password, authenticationManager);
+		// 记录登录日志
+		sysLoginLogService.writeLoginLog(username, IPUtils.getIpAddr(request));
 		return HttpResult.ok(token);
 	}
 

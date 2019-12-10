@@ -1,16 +1,15 @@
 package com.louis.mango.admin.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.louis.mango.admin.dao.SysDictMapper;
 import com.louis.mango.admin.model.SysDict;
 import com.louis.mango.admin.service.SysDictService;
 import com.louis.mango.core.page.MybatisPageHelper;
 import com.louis.mango.core.page.PageRequest;
 import com.louis.mango.core.page.PageResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class SysDictServiceImpl  implements SysDictService {
@@ -46,7 +45,7 @@ public class SysDictServiceImpl  implements SysDictService {
 
 	@Override
 	public PageResult findPage(PageRequest pageRequest) {
-		Object label = pageRequest.getParam("label");
+		Object label = pageRequest.getParamValue("label");
 		if(label != null) {
 			return MybatisPageHelper.findPage(pageRequest, sysDictMapper, "findPageByLabel", label);
 		}

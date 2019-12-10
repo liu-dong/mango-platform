@@ -2,6 +2,7 @@ package com.louis.mango.monitor;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 import de.codecentric.boot.admin.server.config.EnableAdminServer;
 
@@ -11,6 +12,7 @@ import de.codecentric.boot.admin.server.config.EnableAdminServer;
  * @date Jan 15, 2019
  */
 @EnableAdminServer
+@EnableDiscoveryClient
 @SpringBootApplication
 public class MangoMonitorApplication {
 

@@ -1,16 +1,16 @@
 package com.louis.mango.admin.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.louis.mango.admin.dao.SysLoginLogMapper;
 import com.louis.mango.admin.model.SysLoginLog;
 import com.louis.mango.admin.service.SysLoginLogService;
 import com.louis.mango.core.page.MybatisPageHelper;
 import com.louis.mango.core.page.PageRequest;
 import com.louis.mango.core.page.PageResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class SysLoginLogServiceImpl  implements SysLoginLogService {
@@ -46,15 +46,33 @@ public class SysLoginLogServiceImpl  implements SysLoginLogService {
 
 	@Override
 	public PageResult findPage(PageRequest pageRequest) {
-		Object userName = pageRequest.getParam("userName");
-		if(userName != null) {
-			return MybatisPageHelper.findPage(pageRequest, sysLoginLogMapper, "findPageByUserName", userName);
-		}
-		Object status = pageRequest.getParam("status");
-		if(status != null) {
+		Object userName = pageRequest.getParamValue("userName");
+		Object status = pageRequest.getParamValue("status");
+		if(userName != null && status != null) {
+			return MybatisPageHelper.findPage(pageRequest, sysLoginLogMapper, "findPageByUserNameAndStatus", userName, status);
+		} else if(status != null) {
 			return MybatisPageHelper.findPage(pageRequest, sysLoginLogMapper, "findPageByStatus", status);
+		} else if(userName != null) {
+			return MybatisPageHelper.findPage(pageRequest, sysLoginLogMapper, "findPageByUserName", userName);
 		}
 		return MybatisPageHelper.findPage(pageRequest, sysLoginLogMapper);
 	}
 	
+	@Transactional
+	@Override
+	public int writeLoginLog(String userName, String ip) {
+		List<SysLoginLog> sysLoginLogs = sysLoginLogMapper.findByUserNameAndStatus(userName, SysLoginLog.STATUS_ONLINE);
+		for(SysLoginLog sysLoginLog:sysLoginLogs) {
+			sysLoginLog.setStatus(SysLoginLog.STATUS_LOGIN);
+			sysLoginLogMapper.updateByPrimaryKey(sysLoginLog);
+		}
+		SysLoginLog record = new SysLoginLog();
+		record.setUserName(userName);
+		record.setIp(ip);
+		record.setStatus(SysLoginLog.STATUS_LOGOUT);
+		sysLoginLogMapper.insertSelective(record);
+		record.setStatus(SysLoginLog.STATUS_ONLINE);
+		sysLoginLogMapper.insertSelective(record);
+		return 0;
+	}
 }

@@ -1,11 +1,5 @@
 package com.louis.mango.admin.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.louis.mango.admin.constant.SysConstants;
 import com.louis.mango.admin.dao.SysMenuMapper;
 import com.louis.mango.admin.dao.SysRoleMapper;
@@ -17,6 +11,11 @@ import com.louis.mango.admin.service.SysRoleService;
 import com.louis.mango.core.page.MybatisPageHelper;
 import com.louis.mango.core.page.PageRequest;
 import com.louis.mango.core.page.PageResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class SysRoleServiceImpl  implements SysRoleService {
@@ -56,7 +55,7 @@ public class SysRoleServiceImpl  implements SysRoleService {
 
 	@Override
 	public PageResult findPage(PageRequest pageRequest) {
-		Object label = pageRequest.getParam("name");
+		Object label = pageRequest.getParamValue("name");
 		if(label != null) {
 			return MybatisPageHelper.findPage(pageRequest, sysRoleMapper, "findPageByName", label);
 		}
