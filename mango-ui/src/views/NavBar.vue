@@ -1,9 +1,9 @@
 <template>
 	<div class="menu-bar-container">
     <!-- logo -->
-    <div class="logo" style="background:#14889A" :class="collapse?'menu-bar-collapse-width':'menu-bar-width'"
-        @click="$router.push('/')">
-        <img v-if="collapse"  src="@/assets/logo.png"/> <div>{{collapse?'':appName}}</div>
+    <div class="logo" :style="{'background':themeColor}" @click="$router.push('/')"
+      :class="collapse?'menu-bar-collapse-width':'menu-bar-width'">
+      <img v-if="collapse"  src="@/assets/logo.png"/> <div>{{collapse?'':appName}}</div>
     </div>
 	</div>
 </template>
@@ -14,7 +14,8 @@ export default {
     computed: {
     ...mapState({
       appName: state=>state.app.appName,
-      collapse: state=>state.app.collapse,
+      themeColor: state=>state.app.themeColor,
+      collapse: state=>state.app.collapse
     })
   },
   methods: {
