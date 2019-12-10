@@ -42,5 +42,11 @@
 		<module>../mango-core</module>
 		<module>../mango-backup</module>
 		<module>../mango-monitor</module>
+		<module>../mango-conifg</module>
+		<module>../mango-consumer</module>
+		<module>../mango-hystrix</module>
+		<module>../mango-producer</module>
+		<module>../mango-producer2</module>
+		<module>../mango-zuul</module>
 	</modules>
 </project>
