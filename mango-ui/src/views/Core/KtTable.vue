@@ -50,7 +50,7 @@ export default {
     },
     maxHeight: {  // 表格最大高度
       type: Number,
-      default: 420
+      default: 440
     },
     showOperation: {  // 是否显示操作组件
       type: Boolean,
@@ -82,7 +82,7 @@ export default {
       // 分页信息
 			pageRequest: {
 				pageNum: 1,
-        pageSize: 10
+        pageSize: 9
       },
       loading: false,  // 加载标识
       selections: []  // 列表选中列

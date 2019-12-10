@@ -5,12 +5,12 @@
           <img class="avatar" :src="require('@/assets/user.png')" />
         </div>  
         <div class="name-role">
-          <span class="sender">{{ user.name }} - {{ user.role }}</span>  
+          <span class="sender">{{ user.nickName }} - {{ user.roleNames }}</span>  
         </div>  
         <div class="registe-info">
           <span class="registe-info">
             <li class="fa fa-clock-o"></li>
-            {{ user.registeInfo }}
+            {{ this.dateFormat(user.createTime) }}
           </span>
         </div>  
     </div>
@@ -20,25 +20,25 @@
         <span class="relation-item">friends</span>
     </div>
     <div class="main-operation">
-        <span class="main-operation-item">
-          <el-button size="small" icon="fa fa-male"> 个人中心</el-button>
+        <span class="main-operation-item" @click="openPersonCenter">
+          <el-button size="small" icon="fa fa-male" > 个人中心</el-button>
         </span>    
-        <span class="main-operation-item">
+        <span class="main-operation-item" @click="openupdatePasswordDialog">
           <el-button size="small" icon="fa fa-key"> 修改密码</el-button>
         </span>    
     </div>
     <div class="other-operation">
-        <div class="other-operation-item">
+        <div class="other-operation-item" @click="clearCache">
           <li class="fa fa-eraser"></li>
           清除缓存
         </div>    
-        <div class="other-operation-item">
+        <div class="other-operation-item" @click="openOnlinePage">
           <li class="fa fa-user"></li>
-          在线人数
+          在线人数 {{onlineUser}}
         </div>    
         <div class="other-operation-item">
           <li class="fa fa-bell"></li>
-          访问次数
+          访问次数 {{accessTimes}}
         </div>    
         <div class="other-operation-item">
           <li class="fa fa-undo"></li>
@@ -49,10 +49,29 @@
       <li class="fa fa-sign-out"></li>
       {{$t("common.logout")}}
     </div>
+    <!--修改密码界面-->
+    <el-dialog title="修改密码" width="40%" :visible.sync="updatePwdDialogVisible" :close-on-click-modal="false" :modal="false">
+      <el-form :model="updatePwdDataForm" label-width="100px" :rules="updatePwdDataFormRules" ref="updatePwdDataForm" :size="size">
+        <el-form-item label="原密码" prop="password">
+          <el-input v-model="updatePwdDataForm.password" type="password" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="新密码" prop="newPassword">
+          <el-input v-model="updatePwdDataForm.newPassword" type="password" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="确认新密码" prop="comfirmPassword">
+          <el-input v-model="updatePwdDataForm.comfirmPassword" type="password" auto-complete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button :size="size" @click.native="updatePwdDialogVisible = false">{{$t('action.cancel')}}</el-button>
+        <el-button :size="size" type="primary" @click.native="updatePassword" :loading="updatePwdLoading">{{$t('action.comfirm')}}</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import { format } from "@/utils/datetime"
 export default {
   name: 'PersonalPanel',
   components:{
@@ -61,7 +80,7 @@ export default {
     user: {
       type: Object,
       default: {
-        name: "admin",
+        nickName: "admin",
         avatar: "@/assets/user.png",
         role: "超级管理员",
         registeInfo: "注册时间：2018-12-25 "
@@ -70,25 +89,126 @@ export default {
   },
   data() {
     return {
+      onlineUser: 0,
+      accessTimes: 0,
+      size: 'small',
+      updatePwdDialogVisible: false,
+      updatePwdLoading: false,
+      updatePwdDataForm: {
+				password: '',
+				newPassword: '',
+				comfirmPassword: ''
+			},
+      updatePwdDataFormRules: {
+				password: [
+					{ required: true, message: '请输入原密码', trigger: 'blur' }
+        ],
+        newPassword: [
+					{ required: true, message: '请输入新密码', trigger: 'blur' }
+        ],
+        comfirmPassword: [
+					{ required: true, message: '请确认密码', trigger: 'blur' }
+				]
+			},
     }
   },
   methods: {
+    // 打开个人中心
+		openPersonCenter: function () {
+			alert('待开发')
+		},
+    // 打开修改密码对话框
+		openupdatePasswordDialog: function () {
+			this.updatePwdDialogVisible = true
+		},
+    // 修改密码
+		updatePassword: function () {
+			this.$refs.updatePwdDataForm.validate((valid) => {
+				if (valid) {
+          if(this.updatePwdDataForm.newPassword != this.updatePwdDataForm.comfirmPassword) {
+            this.$message({message: '新密码与确认新密码不一致', type: 'error'})
+            return
+          }
+					this.$confirm('确认提交吗？', '提示', {}).then(() => {
+						this.updatePwdLoading = true
+						let params = {password:this.updatePwdDataForm.password, newPassword:this.updatePwdDataForm.newPassword}
+						this.$api.user.updatePassword(params).then((res) => {
+							this.updatePwdLoading = false
+							if(res.code == 200) {
+								this.$message({ message: '操作成功', type: 'success' })
+                this.$refs['updatePwdDataForm'].resetFields()
+                this.logoutApi()
+							} else {
+                this.$message({message: '操作失败, ' + res.msg, type: 'error'})
+							}
+              this.updatePwdDialogVisible = false
+						})
+					})
+				}
+			})
+		},
     // 退出登录
-    logout: function() {
+    logout() {
       this.$confirm("确认退出吗?", "提示", {
         type: "warning"
       })
       .then(() => {
-        sessionStorage.removeItem("user")
+        this.logoutApi()
+      })
+      .catch(() => {})
+    },
+    // 清除缓存并退出登录
+    clearCache() {
+      this.$confirm("确认清除缓存并退出登录吗?", "提示", {
+        type: "warning"
+      })
+      .then(() => {
+        this.deleteCookie('token')// 清空Cookie里的token
+        this.logoutApi()
+      })
+      .catch(() => {})
+    },
+    logoutApi() {
+      sessionStorage.removeItem("user")
         this.$router.push("/login")
         this.$api.login.logout().then((res) => {
           }).catch(function(res) {
         })
-      })
-      .catch(() => {})
+    },
+    // 清除Cookie
+    deleteCookie(name){     
+         var myDate = new Date()   
+         myDate.setTime(-1000) // 设置过期时间     
+         document.cookie = name+"=''; expires="+myDate.toGMTString();              
+    },    
+    // 获取在线用户数
+		countOnlineUser() {
+      let pageRequest = { pageNum: 1, pageSize: 10000000 }
+			pageRequest.params = [{name:'status', value:'online'}]
+			this.$api.loginlog.findPage(pageRequest).then((res) => {
+				this.onlineUser = res.data.content.length
+			})
+		},
+    // 获取访问次数
+		countAccessTimes() {
+      let pageRequest = { pageNum: 1, pageSize: 10000000 }
+			pageRequest.params = [{name:'status', value:'login'}]
+			this.$api.loginlog.findPage(pageRequest).then((res) => {
+				this.accessTimes = res.data.content.length + 1
+			})
+		},
+    openOnlinePage() {
+      // 通过菜单URL跳转至指定路由
+      this.$router.push('/sys/online')
+    },
+		// 时间格式化
+    dateFormat(date){
+      return format(date)
     }
   },
   mounted() {
+    this.countOnlineUser()
+    this.countAccessTimes()
   }
 }
 </script>
