@@ -1,6 +1,12 @@
 server:
   port: 8001
 spring:
+  application:
+    name: mango-admin
+  boot:
+    admin:
+      client:
+        url: "http://localhost:8000"
   datasource:
     name: druidDataSource
     type: com.alibaba.druid.pool.DruidDataSource
@@ -23,3 +29,8 @@ spring:
       pool-prepared-statements: true
       max-open-prepared-statements: 50
       max-pool-prepared-statement-per-connection-size: 20
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

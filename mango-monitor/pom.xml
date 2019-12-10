@@ -11,14 +11,16 @@
 	</parent>
 
 	<groupId>com.louis</groupId>
-	<artifactId>mango-backup</artifactId>
+	<artifactId>mango-monitor</artifactId>
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	
-	<name>mango-backup</name>
-	<description>mango-backup</description>
+	<name>mango-monitor</name>
+	<description>mango-monitor</description>
 
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 	</properties>
 
@@ -26,42 +28,22 @@
 		<!-- spring boot -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
-		<!-- swagger -->
-		<dependency>
-		    <groupId>io.springfox</groupId>
-		    <artifactId>springfox-swagger2</artifactId>
-		    <version>2.9.2</version>
+        <!--spring-boot-admin-->
+        <dependency>
+		    <groupId>de.codecentric</groupId>
+		    <artifactId>spring-boot-admin-server</artifactId>
+		    <version>2.1.2</version>
 		</dependency>
 		<dependency>
-		    <groupId>io.springfox</groupId>
-		    <artifactId>springfox-swagger-ui</artifactId>
-		    <version>2.9.2</version>
-		</dependency>
-		<!--spring-boot-admin-client-->
-		<dependency>
-			<groupId>de.codecentric</groupId>
-			<artifactId>spring-boot-admin-starter-client</artifactId>
-			<version>2.1.2</version>
-		</dependency> 
-		<dependency>
-			<groupId>com.louis</groupId>
-			<artifactId>mango-common</artifactId>
-			<version>1.0.0</version>
+		    <groupId>de.codecentric</groupId>
+		    <artifactId>spring-boot-admin-server-ui</artifactId>
+		    <version>2.1.2</version>
 		</dependency>
 	</dependencies>
 	
 	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<includes>
-					<include>**/*</include>
-				</includes>
-				<filtering>false</filtering>
-			</resource>
-		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
