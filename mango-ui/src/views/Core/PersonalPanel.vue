@@ -40,7 +40,7 @@
           <li class="fa fa-bell"></li>
           访问次数 {{accessTimes}}
         </div>    
-        <div class="other-operation-item">
+        <div class="other-operation-item" @click="showBackupDialog">
           <li class="fa fa-undo"></li>
           {{$t("common.backupRestore")}}
         </div>    
@@ -67,14 +67,18 @@
         <el-button :size="size" type="primary" @click.native="updatePassword" :loading="updatePwdLoading">{{$t('action.comfirm')}}</el-button>
       </div>
     </el-dialog>
+    <!--备份还原界面-->
+    <backup ref="backupDialog" @afterRestore="afterRestore"></backup>
   </div>
 </template>
 
 <script>
+import Backup from "@/views/Backup/Backup"
 import { format } from "@/utils/datetime"
 export default {
   name: 'PersonalPanel',
   components:{
+    Backup
   },
   props: {
     user: {
@@ -204,6 +208,19 @@ export default {
 		// 时间格式化
     dateFormat(date){
       return format(date)
+    },
+    // 打开备份还原界面
+    showBackupDialog: function() {
+      this.$refs.backupDialog.setBackupVisible(true)
+    },
+    // 成功还原之后，重新登录
+    afterRestore: function() {
+      this.$refs.backupDialog.setBackupVisible(false)
+      sessionStorage.removeItem("user")
+      this.$router.push("/login")
+      this.$api.login.logout().then((res) => {
+        }).catch(function(res) {
+      })
     }
   },
   mounted() {
